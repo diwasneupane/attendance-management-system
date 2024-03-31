@@ -1,6 +1,8 @@
 import { Router } from "express";
 import {
   adminRegister,
+  changeCurrentPassword,
+  getCurrentAdmin,
   loginAdmin,
   logoutAdmin,
 } from "../controllers/admin.controller.js";
@@ -11,5 +13,7 @@ const router = Router();
 router.route("/admin-register").post(adminRegister);
 router.route("/admin-login").post(loginAdmin);
 router.route("/admin-logout").post(verifyJwt, logoutAdmin);
+router.route("/admin-updatePassword").patch(verifyJwt, changeCurrentPassword);
+router.route("/admin-getAdmin").get(verifyJwt, getCurrentAdmin);
 
 export default router;

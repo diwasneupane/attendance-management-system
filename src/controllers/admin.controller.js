@@ -38,10 +38,10 @@ const adminRegister = asyncHandler(async (req, res) => {
     if (error instanceof z.ZodError) {
       // Extract error messages from the Zod error object
       const errorMessage = error.errors.map((err) => err.message).join("; ");
-      throw new ApiError(400, `User validation failed: ${errorMessage}`);
+      throw new ApiError(400, `Admin validation failed: ${errorMessage}`);
     } else {
       // If it's not a Zod error, throw a generic error message
-      throw new ApiError(400, "User validation failed");
+      throw new ApiError(400, "Admin validation failed");
     }
   }
   // Check if any admin already exists in the database
@@ -77,7 +77,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } = await generateAccessandRefreshTokens(
     admin._id
   );
-  console.log(accessToken, refreshToken);
+  // console.log(accessToken, refreshToken);
   const loggedInAdmin = await Admin.findById(admin?._id).select(
     "-password -refreshToken"
   );
@@ -121,4 +121,29 @@ const logoutAdmin = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Admin loggedOut"));
 });
 
-export { adminRegister, loginAdmin, logoutAdmin };
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const admin = await Admin.findById(req.admin._id);
+  const isPasswordCorrect = await admin.isPasswordCorrect(oldPassword);
+  if (!isPasswordCorrect) {
+    throw new ApiError(400, "Invalid old password");
+  }
+  admin.password = newPassword;
+  await admin.save({ validateBeforeSave: false });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "password change successfully"));
+});
+const getCurrentAdmin = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.admin, "current admin fetched"));
+});
+
+export {
+  adminRegister,
+  loginAdmin,
+  logoutAdmin,
+  changeCurrentPassword,
+  getCurrentAdmin,
+};

@@ -19,7 +19,9 @@ app.use(cookieParser());
 // routes
 
 import adminRoutes from "./routes/admin.router.js";
+import levelRoutes from "./routes/level.router.js";
 
 //routeDecleration
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/level", levelRoutes);
 export { app };
