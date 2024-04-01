@@ -284,6 +284,24 @@ const getLevel = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Failed to fetch levels");
   }
 });
+// const getLevel = asyncHandler(async (req, res) => {
+//   try {
+//     // Aggregate pipeline to join levels with sections and project only the section names
+//     const levels = await Level.find();
+
+//     // Check if any levels are found
+//     if (!levels || levels.length === 0) {
+//       throw new ApiError(404, "No levels found");
+//     }
+
+//     // Respond with the fetched levels
+//     return res.json(
+//       new ApiResponse(200, levels, "Levels fetched successfully")
+//     );
+//   } catch (error) {
+//     throw new ApiError(500, "Failed to fetch levels");
+//   }
+// });
 
 export {
   createLevel,

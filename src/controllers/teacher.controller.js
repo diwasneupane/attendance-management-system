@@ -68,12 +68,10 @@ const getTeachers = asyncHandler(async (req, res) => {
   if (!teachers) {
     throw new ApiError(404, "Teachers Not Found");
   }
-  const teacherNames = teachers.map((teacher) => teacher.teacherName);
+  //   const teacherNames = teachers.map((teacher) => teacher.teacherName);
   return res
     .status(200)
-    .json(
-      new ApiResponse(200, teacherNames, "All teacher fetched successfully")
-    );
+    .json(new ApiResponse(200, teachers, "All teacher fetched successfully"));
 });
 
 export { CreateTeacher, updateTeacher, deleteTeacher, getTeachers };

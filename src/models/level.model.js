@@ -18,6 +18,7 @@ const levelSchema = new Schema(
       type: String,
       required: true,
       index: true,
+      trim: true,
     },
     sections: [
       {
