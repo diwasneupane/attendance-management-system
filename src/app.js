@@ -20,8 +20,10 @@ app.use(cookieParser());
 
 import adminRoutes from "./routes/admin.router.js";
 import levelRoutes from "./routes/level.router.js";
+import teacherRoutes from "./routes/teacher.router.js";
 
 //routeDecleration
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/level", levelRoutes);
+app.use("/api/v1/teacher", teacherRoutes);
 export { app };

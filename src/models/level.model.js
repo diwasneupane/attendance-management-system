@@ -17,12 +17,14 @@ const levelSchema = new Schema(
     level: {
       type: String,
       required: true,
+      index: true,
     },
     sections: [
       {
         type: Schema.Types.ObjectId,
         ref: "Section",
         required: true,
+        index: true,
       },
     ],
   },
