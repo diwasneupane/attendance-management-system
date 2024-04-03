@@ -7,21 +7,17 @@ import { z } from "zod";
 
 const generateAccessandRefreshTokens = async (_id) => {
   try {
-    // Find the admin by ID
     const admin = await Admin.findById(_id);
     if (!admin) {
       throw new ApiError(404, "Admin not found");
     }
 
-    // Generate access and refresh tokens
     const accessToken = admin.generateAccessToken();
     const refreshToken = admin.generateRefreshToken();
 
-    // Update the refresh token in the admin document
     admin.refreshToken = refreshToken;
     await admin.save();
 
-    // Return the tokens
     return {
       accessToken,
       refreshToken,
@@ -31,32 +27,25 @@ const generateAccessandRefreshTokens = async (_id) => {
   }
 };
 const adminRegister = asyncHandler(async (req, res) => {
-  // Validate the password against the passwordValidation schema
   try {
     passwordValidation.parse(req.body.password);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      // Extract error messages from the Zod error object
       const errorMessage = error.errors.map((err) => err.message).join("; ");
       throw new ApiError(400, `Admin validation failed: ${errorMessage}`);
     } else {
-      // If it's not a Zod error, throw a generic error message
       throw new ApiError(400, "Admin validation failed");
     }
   }
-  // Check if any admin already exists in the database
   const existingAdmin = await Admin.findOne();
 
-  // If an admin already exists, throw an error
   if (existingAdmin) {
     throw new ApiError(400, "Admin already exists");
   }
 
-  // If no admin exists, proceed to add the default admin
   const { password } = req.body;
   const admin = await Admin.create({ username: "AdminEliteCa", password });
 
-  // Return success response
   return res
     .status(200)
     .json(new ApiResponse(200, admin, "Admin registered successfully"));
@@ -77,7 +66,6 @@ const loginAdmin = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } = await generateAccessandRefreshTokens(
     admin._id
   );
-  // console.log(accessToken, refreshToken);
   const loggedInAdmin = await Admin.findById(admin?._id).select(
     "-password -refreshToken"
   );

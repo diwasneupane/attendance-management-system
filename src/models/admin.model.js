@@ -20,11 +20,9 @@ const adminSchema = new Schema(
   { timestamps: true }
 );
 
-// Pre-save hook to set username to "AdminEliteCa" if it's not provided
+
 adminSchema.pre("save", function (next) {
-  // Check if the document is newly created and if the username is not provided
   if (this.isNew && !this.username) {
-    // Set the username to "AdminEliteCa"
     this.username = "AdminEliteCa";
   }
   next();
