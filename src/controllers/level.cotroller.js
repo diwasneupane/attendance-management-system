@@ -1,4 +1,5 @@
 import { Level, Section } from "../models/level.model.js";
+import { Teacher } from "../models/teacher.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -239,25 +240,37 @@ const getLevel = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Failed to fetch levels");
   }
 });
-// const getLevel = asyncHandler(async (req, res) => {
-//   try {
-//     // Aggregate pipeline to join levels with sections and project only the section names
-//     const levels = await Level.find();
 
-//     // Check if any levels are found
-//     if (!levels || levels.length === 0) {
-//       throw new ApiError(404, "No levels found");
-//     }
+export const getSystemStats = asyncHandler(async (req, res) => {
+  try {
+    const totalTeachers = await Teacher.countDocuments();
 
-//     // Respond with the fetched levels
-//     return res.json(
-//       new ApiResponse(200, levels, "Levels fetched successfully")
-//     );
-//   } catch (error) {
-//     throw new ApiError(500, "Failed to fetch levels");
-//   }
-// });
+    const levels = await Level.find().populate({
+      path: "sections",
+      select: "sectionName",
+    });
 
+    const levelData = levels.map((level) => ({
+      levelName: level.level,
+      sectionNames: level.sections.map((section) => section.sectionName),
+    }));
+
+    const data = {
+      totalTeachers,
+      totalLevels: levels.length,
+      levelData,
+    };
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, data, "System stats fetched successfully"));
+  } catch (error) {
+    console.error("Error fetching system stats:", error);
+    return res
+      .status(500)
+      .json(new ApiResponse(500, "Failed to fetch system stats"));
+  }
+});
 export {
   createLevel,
   deleteLevel,

@@ -1,10 +1,9 @@
 import { app } from "./app.js";
 import connectDB from "./db/index.js";
-
 connectDB()
-  .then(() => {
+  .then(async () => {
     try {
-      app.listen(process.env.PORT, () => {
+      app.listen(process.env.PORT, async () => {
         console.log(`port is running at port ${process.env.PORT}`);
       });
     } catch (error) {

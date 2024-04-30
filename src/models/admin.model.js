@@ -6,11 +6,12 @@ const adminSchema = new Schema(
   {
     username: {
       type: String,
-      default: "AdminEliteCa",
-    }, // Default username
+      required: true,
+      // default: "AdminEliteCa",
+    },
     password: {
       type: String,
-      // default: "Admin123",
+      // default: "Admin@123",
       required: [true, "password is must"],
     },
     refreshToken: {
@@ -20,7 +21,6 @@ const adminSchema = new Schema(
   { timestamps: true }
 );
 
-
 adminSchema.pre("save", function (next) {
   if (this.isNew && !this.username) {
     this.username = "AdminEliteCa";
@@ -28,7 +28,6 @@ adminSchema.pre("save", function (next) {
   next();
 });
 
-//bcrypt password
 adminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
