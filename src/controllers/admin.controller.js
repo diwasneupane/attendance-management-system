@@ -110,18 +110,28 @@ const logoutAdmin = asyncHandler(async (req, res) => {
 });
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
+  const { oldPassword, newPassword, confirmNewPassword } = req.body; // Correct names
+  console.log("Received newPassword:", newPassword);
+  console.log("Received confirmNewPassword:", confirmNewPassword);
+  if (newPassword !== confirmNewPassword) {
+    throw new ApiError(400, "New passwords do not match");
+  }
+
   const admin = await Admin.findById(req.admin._id);
+
   const isPasswordCorrect = await admin.isPasswordCorrect(oldPassword);
   if (!isPasswordCorrect) {
     throw new ApiError(400, "Invalid old password");
   }
-  admin.password = newPassword;
-  await admin.save({ validateBeforeSave: false });
+
+  admin.password = newPassword; // Change the password
+  await admin.save({ validateBeforeSave: false }); // Save the new password
+
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "password change successfully"));
+    .json(new ApiResponse(200, {}, "Password changed successfully"));
 });
+
 const getCurrentAdmin = asyncHandler(async (req, res) => {
   return res
     .status(200)

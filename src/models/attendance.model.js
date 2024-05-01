@@ -1,10 +1,35 @@
 import mongoose, { Schema } from "mongoose";
 
-const attendanceSchema = new Schema(
+const periodSchema = new Schema(
   {
     teacher: {
       type: Schema.Types.ObjectId,
       ref: "Teacher",
+      required: true,
+    },
+    level: {
+      type: Schema.Types.ObjectId,
+      ref: "Level",
+    },
+    section: {
+      type: Schema.Types.ObjectId,
+      ref: "Section",
+    },
+    checkInTime: {
+      type: Date,
+      required: true,
+    },
+    checkOutTime: {
+      type: Date,
+    },
+  },
+  { timestamps: true }
+);
+
+const attendanceSchema = new Schema(
+  {
+    date: {
+      type: Date,
       required: true,
     },
     level: {
@@ -17,12 +42,7 @@ const attendanceSchema = new Schema(
       ref: "Section",
       required: true,
     },
-    checkInTime: {
-      type: Date,
-    },
-    checkOutTime: {
-      type: Date,
-    },
+    periods: [periodSchema],
   },
   { timestamps: true }
 );

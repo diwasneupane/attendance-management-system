@@ -207,38 +207,15 @@ const handleSectionDeletion = asyncHandler(async (sectionId) => {
 });
 
 const getLevel = asyncHandler(async (req, res) => {
-  try {
-    const levels = await Level.aggregate([
-      {
-        $lookup: {
-          from: "sections",
-          localField: "sections",
-          foreignField: "_id",
-          as: "sectionDetails",
-        },
-      },
-      {
-        $unwind: "$sectionDetails",
-      },
-      {
-        $group: {
-          _id: "$_id",
-          level: { $first: "$level" },
-          sectionNames: { $push: "$sectionDetails.sectionName" },
-        },
-      },
-    ]);
+  const levels = await Level.find().populate("sections");
 
-    if (!levels || levels.length === 0) {
-      throw new ApiError(404, "No levels found");
-    }
-
-    return res.json(
-      new ApiResponse(200, levels, "Levels fetched successfully")
-    );
-  } catch (error) {
-    throw new ApiError(500, "Failed to fetch levels");
+  if (!levels || levels.length === 0) {
+    return res.status(200).json(new ApiResponse(200, [], "No levels found."));
   }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, levels, "Levels fetched successfully."));
 });
 
 export const getSystemStats = asyncHandler(async (req, res) => {
