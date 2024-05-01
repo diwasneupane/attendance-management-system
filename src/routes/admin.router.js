@@ -14,7 +14,7 @@ const router = Router();
 router.route("/admin-register").post(adminRegister);
 router.route("/admin-login").post(loginAdmin);
 router.route("/admin-logout").post(verifyJwt, logoutAdmin);
-router.route("/admin-updatePassword").patch(verifyJwt, changeCurrentPassword);
+router.route("/admin-updatePassword").put(verifyJwt, changeCurrentPassword);
 router.route("/admin-getAdmin").get(verifyJwt, getCurrentAdmin);
 router.get("/system-stats", getSystemStats);
 

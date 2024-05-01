@@ -1,4 +1,4 @@
-import Attendance from "../models/attendance.model.js";
+import { Attendance, Period } from "../models/attendance.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -44,50 +44,35 @@ const createAttendanceRecord = asyncHandler(async (req, res) => {
   );
 });
 
-export default createAttendanceRecord;
-
 const getAttendance = asyncHandler(async (req, res) => {
-  const { date, level, section } = req.query;
-
-  let query = {};
-  if (date) {
-    query.date = new Date(date);
-  }
-  if (level) {
-    query.level = level;
-  }
-  if (section) {
-    query.section = section;
-  }
-
-  const attendanceRecords = await Attendance.find(query)
-    .populate("level", "level")
-    .populate("section", "sectionName")
+  const attendanceRecords = await Attendance.find()
     .populate("periods.teacher", "teacherName")
-    .select("-createdAt -updatedAt");
+    .populate("level", "level")
+    .populate("section", "sectionName");
 
-  const formattedRecords = attendanceRecords.flatMap((record) => {
+  if (!attendanceRecords || attendanceRecords.length === 0) {
+    throw new ApiError(404, "No attendance records found");
+  }
+
+  const allPeriods = attendanceRecords.flatMap((record) => {
     return record.periods.map((period) => ({
       _id: period._id,
-      teacher: period.teacher.teacherName || "Unknown Teacher",
-      teacherId: period.teacher._id,
-      level: record.level.level || "Unknown Level",
-      levelId: record.level._id,
-      sectionId: record.section._id,
-      section: record.section.sectionName,
-      checkInTime: period.checkInTime.toISOString(),
+      teacher: period.teacher?.teacherName || "Unknown Teacher",
+      level: record.level?.level || "Unknown Level",
+      section: record.section?.sectionName || "Unknown Section",
+      checkInTime: period.checkInTime?.toISOString(),
       checkOutTime: period.checkOutTime
         ? period.checkOutTime.toISOString()
         : "",
     }));
   });
 
+  if (!allPeriods || allPeriods.length === 0) {
+    throw new ApiError(404, "No periods found");
+  }
+
   res.json(
-    new ApiResponse(
-      200,
-      formattedRecords,
-      "Attendance records fetched successfully"
-    )
+    new ApiResponse(200, allPeriods, "All periods fetched successfully")
   );
 });
 
@@ -148,20 +133,16 @@ const getAllAttendanceRecordsInExcel = asyncHandler(async (req, res) => {
   }
 });
 const updateAttendanceRecord = asyncHandler(async (req, res) => {
-  const { attendanceId, periodId } = req.params;
-  console.log(attendanceId);
-  console.log(periodId);
-  const { teacherId, levelId, sectionId, checkInTime, checkOutTime } = req.body;
-
-  if (!mongoose.Types.ObjectId.isValid(attendanceId)) {
-    throw new ApiError(400, "Invalid Attendance ID");
-  }
+  const { periodId } = req.params;
+  const { teacherId, checkInTime, checkOutTime, levelId, sectionId } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(periodId)) {
     throw new ApiError(400, "Invalid Period ID");
   }
 
-  const attendanceRecord = await Attendance.findById(attendanceId);
+  const attendanceRecord = await Attendance.findOne({
+    "periods._id": periodId,
+  });
 
   if (!attendanceRecord) {
     throw new ApiError(404, "Attendance record not found");
@@ -173,62 +154,67 @@ const updateAttendanceRecord = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Period not found");
   }
 
-  if (!checkInTime) {
-    throw new ApiError(400, "Check-in time is required");
+  if (teacherId) {
+    period.teacher = teacherId;
   }
 
-  if (checkOutTime && new Date(checkInTime) > new Date(checkOutTime)) {
-    throw new ApiError(
-      400,
-      "Check-in time cannot be later than check-out time"
-    );
+  if (checkInTime) {
+    period.checkInTime = checkInTime;
   }
 
-  period.teacher = teacherId;
-  period.checkInTime = checkInTime;
-  period.checkOutTime = checkOutTime;
+  if (checkOutTime) {
+    period.checkOutTime = checkOutTime;
+  }
 
   if (levelId) {
-    attendanceRecord.level = levelId;
+    period.level = levelId;
   }
 
   if (sectionId) {
-    attendanceRecord.section = sectionId;
+    period.section = sectionId;
   }
 
   await attendanceRecord.save();
 
-  res.json(
-    new ApiResponse(
-      200,
-      attendanceRecord,
-      "Attendance period updated successfully"
-    )
-  );
+  res.json(new ApiResponse(200, period, "Period updated successfully"));
 });
 
 const deleteAttendanceRecord = asyncHandler(async (req, res) => {
-  const { attendanceId } = req.params;
+  const { periodId } = req.params;
 
-  console.log("Attempting to delete attendance record with ID:", attendanceId);
-
-  if (!mongoose.Types.ObjectId.isValid(attendanceId)) {
-    throw new ApiError(400, "Invalid Attendance ID");
+  if (!mongoose.Types.ObjectId.isValid(periodId)) {
+    throw new ApiError(400, "Invalid Period ID");
   }
 
-  const deletedRecord = await Attendance.findByIdAndDelete(attendanceId);
+  console.log("Valid period ID:", periodId);
 
-  if (!deletedRecord) {
+  const attendanceRecord = await Attendance.findOne({
+    "periods._id": periodId,
+  });
+
+  console.log("Attendance record:", attendanceRecord);
+
+  if (!attendanceRecord) {
+    console.log("Attendance record not found");
     throw new ApiError(404, "Attendance record not found");
   }
 
-  res.json(
-    new ApiResponse(
-      200,
-      deletedRecord,
-      "Attendance record deleted successfully"
-    )
+  const periodIndex = attendanceRecord.periods.findIndex(
+    (p) => p._id.toString() === periodId
   );
+
+  if (periodIndex === -1) {
+    console.log("Period not found in Attendance record");
+    throw new ApiError(404, "Period not found in Attendance record");
+  }
+
+  attendanceRecord.periods.splice(periodIndex, 1);
+
+  await attendanceRecord.save();
+
+  console.log("Period deleted successfully");
+
+  res.json(new ApiResponse(200, null, "Period deleted successfully"));
 });
 
 export {
