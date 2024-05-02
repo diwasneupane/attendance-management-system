@@ -186,16 +186,11 @@ const deleteAttendanceRecord = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid Period ID");
   }
 
-  console.log("Valid period ID:", periodId);
-
   const attendanceRecord = await Attendance.findOne({
     "periods._id": periodId,
   });
 
-  console.log("Attendance record:", attendanceRecord);
-
   if (!attendanceRecord) {
-    console.log("Attendance record not found");
     throw new ApiError(404, "Attendance record not found");
   }
 
@@ -204,15 +199,12 @@ const deleteAttendanceRecord = asyncHandler(async (req, res) => {
   );
 
   if (periodIndex === -1) {
-    console.log("Period not found in Attendance record");
     throw new ApiError(404, "Period not found in Attendance record");
   }
 
   attendanceRecord.periods.splice(periodIndex, 1);
 
   await attendanceRecord.save();
-
-  console.log("Period deleted successfully");
 
   res.json(new ApiResponse(200, null, "Period deleted successfully"));
 });
