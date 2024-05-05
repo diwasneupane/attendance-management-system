@@ -78,20 +78,19 @@ const isValidTeacher = async (teacherId) => {
 };
 const getAttendance = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, checkInTimeRange } = req.query;
+  console.log("Limit set in the backend:", limit);
   let filter = {};
   if (checkInTimeRange) {
     const [start, end] = checkInTimeRange.split("_");
     if (start && end) {
-      // Convert the start and end dates to include records for the entire day
       const startDate = new Date(start);
-      startDate.setUTCHours(0, 0, 0, 0); // Set time to midnight in UTC
+      startDate.setUTCHours(0, 0, 0, 0);
       const endDate = new Date(end);
-      endDate.setUTCHours(23, 59, 59, 999); // Set time to end of day in UTC
+      endDate.setUTCHours(23, 59, 59, 999);
 
-      // Adjust the filter to include records within the date range
       filter["periods.checkInTime"] = {
         $gte: startDate,
-        $lte: endDate, // Use $lte to include records up to the end of the specified end date
+        $lte: endDate,
       };
     }
   }
