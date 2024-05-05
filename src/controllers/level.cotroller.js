@@ -9,23 +9,18 @@ const createLevel = asyncHandler(async (req, res) => {
   const { level, sections } = req.body;
 
   if (!level || !sections || sections.length === 0) {
-    throw new ApiError(409, "Level name and at least one section are required");
+    throw new ApiError(400, "Level name and at least one section are required");
   }
 
   const existingLevel = await Level.findOne({ level });
   if (existingLevel) {
-    throw new ApiError(400, "Level already exists");
+    throw new ApiError(409, "Level already exists");
   }
 
   const sectionIds = [];
 
   for (const sectionName of sections) {
-    let section = await Section.findOne({ sectionName });
-
-    if (!section) {
-      section = await Section.create({ sectionName });
-    }
-
+    const section = await Section.create({ sectionName });
     sectionIds.push(section._id);
   }
 
@@ -46,32 +41,31 @@ const addAdditionalSections = asyncHandler(async (req, res) => {
 
   if (!levelId || !additionalSections || additionalSections.length === 0) {
     throw new ApiError(
-      409,
+      400,
       "Level ID and at least one additional section are required"
     );
   }
 
-  const existingLevel = await Level.findById(levelId);
+  const existingLevel = await Level.findById(levelId).populate("sections");
   if (!existingLevel) {
     throw new ApiError(404, "Level not found");
   }
 
   const sectionIds = [];
+  const existingSectionNames = existingLevel.sections.map(
+    (section) => section.sectionName
+  );
+
   for (const sectionName of additionalSections) {
-    let section = await Section.findOne({ sectionName });
-
-    if (!section) {
-      section = await Section.create({ sectionName });
+    if (existingSectionNames.includes(sectionName)) {
+      throw new ApiError(
+        409,
+        `Section '${sectionName}' already exists in the level`
+      );
     }
 
+    const section = await Section.create({ sectionName });
     sectionIds.push(section._id);
-
-    const sectionExistsInLevel = existingLevel.sections.some(
-      (sectionId) => sectionId.toString() === section._id.toString()
-    );
-    if (sectionExistsInLevel) {
-      throw new ApiError(400, "Section already exists in the level");
-    }
   }
 
   existingLevel.sections.push(...sectionIds);

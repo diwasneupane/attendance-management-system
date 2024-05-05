@@ -77,9 +77,9 @@ const isValidTeacher = async (teacherId) => {
   return teacher !== null;
 };
 const getAttendance = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, checkInTimeRange } = req.query;
-  console.log("Limit set in the backend:", limit);
+  const { checkInTimeRange } = req.query;
   let filter = {};
+
   if (checkInTimeRange) {
     const [start, end] = checkInTimeRange.split("_");
     if (start && end) {
@@ -99,9 +99,7 @@ const getAttendance = asyncHandler(async (req, res) => {
     .populate("periods.teacher", "teacherName")
     .populate("level", "level")
     .populate("section", "sectionName")
-    .sort({ "periods.checkInTime": -1 })
-    .skip((page - 1) * limit)
-    .limit(limit);
+    .sort({ "periods.checkInTime": -1 });
 
   if (!attendanceRecords || attendanceRecords.length === 0)
     throw new ApiError(404, "No attendance records found");

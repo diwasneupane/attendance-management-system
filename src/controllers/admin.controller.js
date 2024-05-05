@@ -110,9 +110,15 @@ const logoutAdmin = asyncHandler(async (req, res) => {
 });
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
-  const { oldPassword, newPassword, confirmNewPassword } = req.body; // Correct names
-  console.log("Received newPassword:", newPassword);
-  console.log("Received confirmNewPassword:", confirmNewPassword);
+  const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+  if (oldPassword === newPassword) {
+    throw new ApiError(
+      400,
+      "New password cannot be the same as the old password"
+    );
+  }
+
   if (newPassword !== confirmNewPassword) {
     throw new ApiError(400, "New passwords do not match");
   }
@@ -124,8 +130,8 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid old password");
   }
 
-  admin.password = newPassword; // Change the password
-  await admin.save({ validateBeforeSave: false }); // Save the new password
+  admin.password = newPassword;
+  await admin.save({ validateBeforeSave: false });
 
   return res
     .status(200)
