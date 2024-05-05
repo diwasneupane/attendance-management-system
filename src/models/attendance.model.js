@@ -69,7 +69,7 @@ const periodSchema = new Schema(
     },
     checkInTime: {
       type: Date,
-      required: true,
+      // required: true,
     },
     checkOutTime: {
       type: Date,

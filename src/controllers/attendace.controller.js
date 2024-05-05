@@ -6,6 +6,7 @@ import { Teacher } from "../models/teacher.model.js";
 import { Level, Section } from "../models/level.model.js";
 import Excel from "exceljs";
 import mongoose from "mongoose";
+import moment from "moment";
 
 const createAttendanceRecord = asyncHandler(async (req, res) => {
   const { date, levelId, sectionId, periods } = req.body;
@@ -22,11 +23,38 @@ const createAttendanceRecord = asyncHandler(async (req, res) => {
     throw new ApiError(400, "At least one period is required");
   }
 
-  const updatedPeriods = periods.map((period) => ({
-    ...period,
-    level: levelId,
-    section: sectionId,
-  }));
+  const level = await Level.findById(levelId);
+  if (!level) {
+    throw new ApiError(404, "Level not found");
+  }
+
+  const section = await Section.findById(sectionId);
+  if (!section) {
+    throw new ApiError(404, "Section not found");
+  }
+
+  const teachers = periods.map((period) => period.teacher);
+  const invalidTeachers = teachers.filter(
+    (teacherId) => !teacherId || !isValidTeacher(teacherId)
+  );
+  if (invalidTeachers.length > 0) {
+    throw new ApiError(404, "Teacher not found");
+  }
+
+  const updatedPeriods = periods.map((period) => {
+    const createdAt = new Date().toISOString();
+
+    const checkInTime = period.checkInTime || createdAt;
+    const checkOutTime = period.checkOutTime || createdAt;
+
+    return {
+      ...period,
+      level: levelId,
+      section: sectionId,
+      checkInTime,
+      checkOutTime,
+    };
+  });
 
   const attendanceRecord = await Attendance.create({
     date,
@@ -44,32 +72,56 @@ const createAttendanceRecord = asyncHandler(async (req, res) => {
   );
 });
 
+const isValidTeacher = async (teacherId) => {
+  const teacher = await Teacher.findById(teacherId);
+  return teacher !== null;
+};
 const getAttendance = asyncHandler(async (req, res) => {
-  const attendanceRecords = await Attendance.find()
-    .populate("periods.teacher", "teacherName")
-    .populate("level", "level")
-    .populate("section", "sectionName");
+  const { page = 1, limit = 10, checkInTimeRange } = req.query;
+  let filter = {};
+  if (checkInTimeRange) {
+    const [start, end] = checkInTimeRange.split("_");
+    if (start && end) {
+      // Convert the start and end dates to include records for the entire day
+      const startDate = new Date(start);
+      startDate.setUTCHours(0, 0, 0, 0); // Set time to midnight in UTC
+      const endDate = new Date(end);
+      endDate.setUTCHours(23, 59, 59, 999); // Set time to end of day in UTC
 
-  if (!attendanceRecords || attendanceRecords.length === 0) {
-    throw new ApiError(404, "No attendance records found");
+      // Adjust the filter to include records within the date range
+      filter["periods.checkInTime"] = {
+        $gte: startDate,
+        $lte: endDate, // Use $lte to include records up to the end of the specified end date
+      };
+    }
   }
 
-  const allPeriods = attendanceRecords.flatMap((record) => {
-    return record.periods.map((period) => ({
+  const attendanceRecords = await Attendance.find(filter)
+    .populate("periods.teacher", "teacherName")
+    .populate("level", "level")
+    .populate("section", "sectionName")
+    .sort({ "periods.checkInTime": -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  if (!attendanceRecords || attendanceRecords.length === 0)
+    throw new ApiError(404, "No attendance records found");
+
+  const allPeriods = attendanceRecords.flatMap((record) =>
+    record.periods.map((period) => ({
       _id: period._id,
       teacher: period.teacher?.teacherName || "Unknown Teacher",
       level: record.level?.level || "Unknown Level",
       section: record.section?.sectionName || "Unknown Section",
-      checkInTime: period.checkInTime?.toISOString(),
+      checkInTime: period.checkInTime?.toLocaleString(),
       checkOutTime: period.checkOutTime
-        ? period.checkOutTime.toISOString()
+        ? period.checkOutTime.toLocaleString()
         : "",
-    }));
-  });
+    }))
+  );
 
-  if (!allPeriods || allPeriods.length === 0) {
+  if (!allPeriods || allPeriods.length === 0)
     throw new ApiError(404, "No periods found");
-  }
 
   res.json(
     new ApiResponse(200, allPeriods, "All periods fetched successfully")
@@ -78,7 +130,21 @@ const getAttendance = asyncHandler(async (req, res) => {
 
 const getAllAttendanceRecordsInExcel = asyncHandler(async (req, res) => {
   try {
-    const attendanceRecords = await Attendance.find()
+    const { checkInTimeRange } = req.query;
+    let filter = {};
+    if (checkInTimeRange) {
+      const [start, end] = checkInTimeRange.split("_");
+      if (start && end) {
+        const adjustedEndDate = new Date(end);
+        adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
+        filter["periods.checkInTime"] = {
+          $gte: new Date(start),
+          $lte: adjustedEndDate,
+        };
+      }
+    }
+
+    const attendanceRecords = await Attendance.find(filter)
       .populate("periods.teacher", "_id teacherName")
       .populate("level", "_id level")
       .populate("section", "_id sectionName");
@@ -107,10 +173,10 @@ const getAllAttendanceRecordsInExcel = asyncHandler(async (req, res) => {
           level: record.level?.level || "Unknown",
           sectionName: record.section?.sectionName || "Unknown",
           checkInTime: period.checkInTime
-            ? new Date(period.checkInTime).toISOString()
+            ? moment(period.checkInTime).format("YYYY-MM-DD HH:mm:ss")
             : "",
           checkOutTime: period.checkOutTime
-            ? new Date(period.checkOutTime).toISOString()
+            ? moment(period.checkOutTime).format("YYYY-MM-DD HH:mm:ss")
             : "",
         });
       });
