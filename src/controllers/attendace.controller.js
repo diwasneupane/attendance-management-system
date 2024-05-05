@@ -135,11 +135,14 @@ const getAllAttendanceRecordsInExcel = asyncHandler(async (req, res) => {
     if (checkInTimeRange) {
       const [start, end] = checkInTimeRange.split("_");
       if (start && end) {
-        const adjustedEndDate = new Date(end);
-        adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
+        // Convert the end date to include records for the entire day
+        const endDate = new Date(end);
+        endDate.setDate(endDate.getDate() + 1);
+
+        // Adjust the filter to include records within the date range
         filter["periods.checkInTime"] = {
           $gte: new Date(start),
-          $lte: adjustedEndDate,
+          $lt: endDate, // Use $lt to include records up to the end of the specified end date
         };
       }
     }
@@ -198,6 +201,7 @@ const getAllAttendanceRecordsInExcel = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Failed to export attendance records to Excel");
   }
 });
+
 const updateAttendanceRecord = asyncHandler(async (req, res) => {
   const { periodId } = req.params;
   const { teacherId, checkInTime, checkOutTime, levelId, sectionId } = req.body;
