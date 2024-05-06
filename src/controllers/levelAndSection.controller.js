@@ -1,6 +1,6 @@
 // import { LevelAndSection } from "../models/levelAndSection.model.js";
 // import { ApiResponse } from "../utils/ApiResponse.js";
-// import { ApiError } from "../utils/apiError.js";
+// import { ApiError } from "../utils/ApiError.js";
 // import { asyncHandler } from "../utils/asyncHandler.js";
 
 // // Controller function to create a new level with sections
