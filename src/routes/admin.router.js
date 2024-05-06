@@ -1,13 +1,13 @@
-import { Router } from "express";
-import {
+const { Router } = require("express");
+const {
   adminRegister,
   changeCurrentPassword,
   getCurrentAdmin,
   loginAdmin,
   logoutAdmin,
-} from "../controllers/admin.controller.js";
-import { verifyJwt } from "../middlewares/auth.middlewares.js";
-import { getSystemStats } from "../controllers/level.cotroller.js";
+} = require("../controllers/admin.controller.js");
+const { verifyJwt } = require("../middlewares/auth.middlewares.js");
+const { getSystemStats } = require("../controllers/level.cotroller.js");
 
 const router = Router();
 
@@ -18,4 +18,4 @@ router.route("/admin-updatePassword").patch(verifyJwt, changeCurrentPassword);
 router.route("/admin-getAdmin").get(verifyJwt, getCurrentAdmin);
 router.get("/system-stats", getSystemStats);
 
-export default router;
+module.exports = router;

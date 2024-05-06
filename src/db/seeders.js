@@ -1,12 +1,13 @@
-import connectDB from "./index.js";
-import { Admin } from "../models/admin.model.js";
+const connectDB = require("./index.js");
+const { Admin } = require("../models/admin.model.js");
 
 connectDB().then(async () => {
   await adminSeeder();
   process.exit(1);
 });
 
-export const adminSeeder = async () => {
+
+const adminSeeder = async () => {
   const existingAdmin = await Admin.findOne();
 
   if (existingAdmin) {

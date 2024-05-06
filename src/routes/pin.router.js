@@ -1,12 +1,12 @@
-import express from "express";
-import {
+const express = require("express");
+const {
   addPin,
   updatePin,
   deletePin,
   validatePin,
   viewPins,
-} from "../controllers/pin.controller.js";
-import { verifyJwt } from "../middlewares/auth.middlewares.js";
+} = require("../controllers/pin.controller.js");
+const { verifyJwt } = require("../middlewares/auth.middlewares.js");
 
 const router = express.Router();
 
@@ -17,4 +17,4 @@ router.put("/update/:pinId", verifyJwt, updatePin);
 router.delete("/delete/:pinId", verifyJwt, deletePin);
 router.get("/view", verifyJwt, viewPins);
 
-export default router;
+module.exports = router;

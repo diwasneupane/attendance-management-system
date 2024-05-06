@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "start": "node -r dotenv/config --experimental-json-modules src/index.js",
-    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
-    "seed": "node -r dotenv/config --experimental-json-modules src/db/seeders.js"
+    "start": "node -r dotenv/config  index.js",
+    "dev": "nodemon -r dotenv/config  index.js",
+    "seed": "node -r dotenv/config  src/db/seeders.js"
   },
   "author": "",
   "license": "ISC",

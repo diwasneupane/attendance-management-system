@@ -1,4 +1,5 @@
-import mongoose, { Schema } from "mongoose";
+const mongoose = require("mongoose");
+const { Schema } = require("mongoose");
 
 const sectionSchema = new Schema(
   {
@@ -30,5 +31,7 @@ const levelSchema = new Schema(
   { timestamps: true }
 );
 
-export const Level = mongoose.model("Level", levelSchema);
-export const Section = mongoose.model("Section", sectionSchema);
+const Level = mongoose.model("Level", levelSchema);
+const Section = mongoose.model("Section", sectionSchema);
+
+module.exports = { Level, Section };

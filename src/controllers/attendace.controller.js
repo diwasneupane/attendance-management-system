@@ -1,12 +1,12 @@
-import { Attendance, Period } from "../models/attendance.model.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { ApiError } from "../utils/ApiError.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { Teacher } from "../models/teacher.model.js";
-import { Level, Section } from "../models/level.model.js";
-import Excel from "exceljs";
-import mongoose from "mongoose";
-import moment from "moment";
+const { Attendance } = require("../models/attendance.model.js");
+const { ApiResponse } = require("../utils/ApiResponse.js");
+const { ApiError } = require("../utils/ApiError.js");
+const { asyncHandler } = require("../utils/asyncHandler.js");
+const { Teacher } = require("../models/teacher.model.js");
+const { Level, Section } = require("../models/level.model.js");
+const Excel = require("exceljs");
+const mongoose = require("mongoose");
+const moment = require("moment");
 
 const createAttendanceRecord = asyncHandler(async (req, res) => {
   const { date, levelId, sectionId, periods } = req.body;
@@ -276,7 +276,7 @@ const deleteAttendanceRecord = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(200, null, "Period deleted successfully"));
 });
 
-export {
+module.exports = {
   createAttendanceRecord,
   getAttendance,
   getAllAttendanceRecordsInExcel,

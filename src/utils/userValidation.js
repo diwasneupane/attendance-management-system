@@ -1,6 +1,4 @@
-// passwordValidation.js
-
-import z from "zod";
+const z = require("zod");
 
 // Define the password validation schema using Zod
 const passwordValidation = z
@@ -13,4 +11,4 @@ const passwordValidation = z
   )
   .nonempty("Password is required");
 
-export default passwordValidation;
+module.exports = passwordValidation;

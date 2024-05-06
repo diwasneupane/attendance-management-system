@@ -1,11 +1,11 @@
-import Pin from "../models/pin.model.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { ApiError } from "../utils/ApiError.js";
-import { isValidObjectId } from "mongoose";
+const Pin = require("../models/pin.model.js");
+const { asyncHandler } = require("../utils/asyncHandler.js");
+const { ApiResponse } = require("../utils/ApiResponse.js");
+const { ApiError } = require("../utils/ApiError.js");
+const { isValidObjectId } = require("mongoose");
 
 // Validate a PIN
-export const validatePin = asyncHandler(async (req, res) => {
+const validatePin = asyncHandler(async (req, res) => {
   try {
     const { pin } = req.body;
 
@@ -27,7 +27,7 @@ export const validatePin = asyncHandler(async (req, res) => {
 });
 
 // Add a new PIN
-export const addPin = asyncHandler(async (req, res) => {
+const addPin = asyncHandler(async (req, res) => {
   try {
     const { pin } = req.body;
 
@@ -50,7 +50,7 @@ export const addPin = asyncHandler(async (req, res) => {
 });
 
 // Update an existing PIN
-export const updatePin = asyncHandler(async (req, res) => {
+const updatePin = asyncHandler(async (req, res) => {
   try {
     const { pinId } = req.params; // Retrieve the pinId from the route parameters
     const { newPin } = req.body; // Retrieve the new PIN from the request body
@@ -91,7 +91,7 @@ export const updatePin = asyncHandler(async (req, res) => {
   }
 });
 
-export const deletePin = asyncHandler(async (req, res) => {
+const deletePin = asyncHandler(async (req, res) => {
   try {
     const { pinId } = req.params;
 
@@ -113,7 +113,7 @@ export const deletePin = asyncHandler(async (req, res) => {
 });
 
 // View all PINs
-export const viewPins = asyncHandler(async (req, res) => {
+const viewPins = asyncHandler(async (req, res) => {
   try {
     const pins = await Pin.find();
 
@@ -129,3 +129,11 @@ export const viewPins = asyncHandler(async (req, res) => {
     return res.status(500).json(new ApiResponse(500, "Failed to view PINs"));
   }
 });
+
+module.exports = {
+  validatePin,
+  addPin,
+  updatePin,
+  deletePin,
+  viewPins,
+};

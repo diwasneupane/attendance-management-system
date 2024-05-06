@@ -1,5 +1,6 @@
-import { app } from "./app.js";
-import connectDB from "./db/index.js";
+const { app } = require("./src/app.js");
+const connectDB = require("./src/db/index.js");
+
 connectDB()
   .then(async () => {
     try {

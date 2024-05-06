@@ -1,6 +1,6 @@
-import mongoose, { Schema } from "mongoose";
+const mongoose = require("mongoose");
 
-const teacherSchema = new Schema({
+const teacherSchema = new mongoose.Schema({
   teacherName: {
     type: String,
     required: true,
@@ -10,4 +10,6 @@ const teacherSchema = new Schema({
   },
 });
 
-export const Teacher = mongoose.model("Teacher", teacherSchema);
+const Teacher = mongoose.model("Teacher", teacherSchema);
+
+module.exports = { Teacher };

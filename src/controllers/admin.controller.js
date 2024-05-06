@@ -1,9 +1,9 @@
-import { Admin } from "../models/admin.model.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { ApiError } from "../utils/ApiError.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import passwordValidation from "../utils/userValidation.js";
-import { z } from "zod";
+const { Admin } = require("../models/admin.model.js");
+const { ApiResponse } = require("../utils/ApiResponse.js");
+const { ApiError } = require("../utils/ApiError.js");
+const { asyncHandler } = require("../utils/asyncHandler.js");
+const passwordValidation = require("../utils/userValidation.js");
+const { z } = require("zod");
 
 const generateAccessandRefreshTokens = async (_id) => {
   try {
@@ -144,7 +144,7 @@ const getCurrentAdmin = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req.admin, "current admin fetched"));
 });
 
-export {
+module.exports = {
   adminRegister,
   loginAdmin,
   logoutAdmin,

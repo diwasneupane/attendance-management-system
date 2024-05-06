@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const pinSchema = new mongoose.Schema({
   pin: {
@@ -13,4 +13,4 @@ const pinSchema = new mongoose.Schema({
 
 const Pin = mongoose.model("Pin", pinSchema);
 
-export default Pin;
+module.exports = { Pin };

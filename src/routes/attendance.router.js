@@ -1,12 +1,12 @@
-import { Router } from "express";
-import {
+const { Router } = require("express");
+const {
   createAttendanceRecord,
   getAllAttendanceRecordsInExcel,
   updateAttendanceRecord,
   deleteAttendanceRecord,
   getAttendance,
-} from "../controllers/attendace.controller.js";
-import { verifyJwt } from "../middlewares/auth.middlewares.js";
+} = require("../controllers/attendace.controller.js");
+const { verifyJwt } = require("../middlewares/auth.middlewares.js");
 
 const router = Router();
 
@@ -22,4 +22,4 @@ router
   .route("/delete-attendance/:periodId")
   .delete(verifyJwt, deleteAttendanceRecord);
 
-export default router;
+module.exports = router;

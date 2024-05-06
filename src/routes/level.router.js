@@ -1,5 +1,5 @@
-import { Router } from "express";
-import {
+const { Router } = require("express");
+const {
   addAdditionalSections,
   createLevel,
   deleteLevel,
@@ -7,8 +7,8 @@ import {
   updateLevelDetails,
   updateSectionDetails,
   getLevel,
-} from "../controllers/level.cotroller.js";
-import { verifyJwt } from "../middlewares/auth.middlewares.js";
+} = require("../controllers/level.cotroller.js");
+const { verifyJwt } = require("../middlewares/auth.middlewares.js");
 const router = Router();
 
 router.route("/create-level").post(verifyJwt, createLevel);
@@ -21,4 +21,4 @@ router
   .patch(verifyJwt, updateSectionDetails);
 router.route("/get-Level").get(getLevel);
 
-export default router;
+module.exports = router;

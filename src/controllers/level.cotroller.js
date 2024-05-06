@@ -1,9 +1,9 @@
-import { Level, Section } from "../models/level.model.js";
-import { Teacher } from "../models/teacher.model.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { ApiError } from "../utils/ApiError.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import mongoose from "mongoose";
+const { Level, Section } = require("../models/level.model.js");
+const { Teacher } = require("../models/teacher.model.js");
+const { ApiResponse } = require("../utils/ApiResponse.js");
+const { ApiError } = require("../utils/ApiError.js");
+const { asyncHandler } = require("../utils/asyncHandler.js");
+const mongoose = require("mongoose");
 
 const createLevel = asyncHandler(async (req, res) => {
   const { level, sections } = req.body;
@@ -212,7 +212,7 @@ const getLevel = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, levels, "Levels fetched successfully."));
 });
 
-export const getSystemStats = asyncHandler(async (req, res) => {
+const getSystemStats = asyncHandler(async (req, res) => {
   try {
     const totalTeachers = await Teacher.countDocuments();
 
@@ -242,7 +242,7 @@ export const getSystemStats = asyncHandler(async (req, res) => {
       .json(new ApiResponse(500, "Failed to fetch system stats"));
   }
 });
-export {
+module.exports = {
   createLevel,
   deleteLevel,
   addAdditionalSections,
@@ -251,4 +251,5 @@ export {
   updateLevelDetails,
   updateSectionDetails,
   getLevel,
+  getSystemStats,
 };

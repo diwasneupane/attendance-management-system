@@ -1,6 +1,7 @@
-import mongoose, { Schema } from "mongoose";
-import bcrypt from "bcrypt";
-import Jwt from "jsonwebtoken";
+const mongoose = require("mongoose");
+const { Schema } = require("mongoose");
+const bcrypt = require("bcrypt");
+const Jwt = require("jsonwebtoken");
 
 const adminSchema = new Schema(
   {
@@ -62,4 +63,8 @@ adminSchema.methods.generateRefreshToken = function () {
   );
 };
 
-export const Admin = mongoose.model("Admin", adminSchema);
+const Admin = mongoose.model("Admin", adminSchema);
+
+module.exports = {
+  Admin,
+};

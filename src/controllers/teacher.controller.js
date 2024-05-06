@@ -1,7 +1,7 @@
-import { Teacher } from "../models/teacher.model.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { ApiError } from "../utils/ApiError.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+const { Teacher } = require("../models/teacher.model.js");
+const { ApiResponse } = require("../utils/ApiResponse.js");
+const { ApiError } = require("../utils/ApiError.js");
+const { asyncHandler } = require("../utils/asyncHandler.js");
 
 const CreateTeacher = asyncHandler(async (req, res) => {
   const { teacherName } = req.body;
@@ -74,4 +74,4 @@ const getTeachers = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, teachers, "All teacher fetched successfully"));
 });
 
-export { CreateTeacher, updateTeacher, deleteTeacher, getTeachers };
+module.exports = { CreateTeacher, updateTeacher, deleteTeacher, getTeachers };
