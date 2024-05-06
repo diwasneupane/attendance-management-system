@@ -37,6 +37,9 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get("/", (req, res) => {
+  res.send("hello world");
+});
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/level", levelRoutes);
 app.use("/api/v1/teacher", teacherRoutes);
